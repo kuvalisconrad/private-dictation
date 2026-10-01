@@ -1,0 +1,6 @@
+# Build-only dependencies; the distributable app needs no Python installation.
+pyinstaller==6.16.0
+pyinstaller-hooks-contrib==2026.8
+altgraph==0.17.5
+macholib==1.16.4
+setuptools==84.0.0

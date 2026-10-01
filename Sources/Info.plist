@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleExecutable</key><string>LocalDictation</string>
+  <key>CFBundleIdentifier</key><string>local.mike.dictation</string>
+  <key>CFBundleName</key><string>Private Dictation</string>
+  <key>CFBundleDisplayName</key><string>Private Dictation</string>
+  <key>CFBundleIconFile</key><string>PrivateDictation.icns</string>
+  <key>CFBundleVersion</key><string>100</string>
+  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>LSUIElement</key><true/>
+  <key>LSMinimumSystemVersion</key><string>14.0</string>
+  <key>LSApplicationCategoryType</key><string>public.app-category.productivity</string>
+  <key>NSMicrophoneUsageDescription</key><string>Record speech only when you use your dictation shortcut. Transcription runs on this Mac with network access blocked; temporary recordings are deleted.</string>
+</dict></plist>

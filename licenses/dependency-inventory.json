@@ -1,0 +1,292 @@
+[
+  {
+    "name": "anyio",
+    "version": "4.15.1",
+    "license": "MIT",
+    "project_urls": [
+      "Documentation, https://anyio.readthedocs.io/en/latest/",
+      "Changelog, https://anyio.readthedocs.io/en/stable/versionhistory.html",
+      "Source code, https://github.com/agronholm/anyio",
+      "Issue tracker, https://github.com/agronholm/anyio/issues"
+    ],
+    "license_files": [
+      "anyio-4.15.1/anyio-4.15.1.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "click",
+    "version": "8.5.0",
+    "license": "BSD-3-Clause",
+    "project_urls": [
+      "Changes, https://click.palletsprojects.com/page/changes/",
+      "Chat, https://discord.gg/pallets",
+      "Documentation, https://click.palletsprojects.com/",
+      "Donate, https://palletsprojects.com/donate",
+      "Source, https://github.com/pallets/click/"
+    ],
+    "license_files": [
+      "click-8.5.0/click-8.5.0.dist-info/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "name": "filelock",
+    "version": "4.0.8",
+    "license": "MIT",
+    "project_urls": [
+      "Documentation, https://py-filelock.readthedocs.io",
+      "Homepage, https://github.com/tox-dev/py-filelock",
+      "Source, https://github.com/tox-dev/py-filelock",
+      "Tracker, https://github.com/tox-dev/py-filelock/issues"
+    ],
+    "license_files": [
+      "filelock-4.0.8/filelock-4.0.8.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "fsspec",
+    "version": "2026.9.0",
+    "license": "BSD-3-Clause",
+    "project_urls": [
+      "Changelog, https://filesystem-spec.readthedocs.io/en/latest/changelog.html",
+      "Documentation, https://filesystem-spec.readthedocs.io/en/latest/",
+      "Homepage, https://github.com/fsspec/filesystem_spec"
+    ],
+    "license_files": [
+      "fsspec-2026.9.0/fsspec-2026.9.0.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "h11",
+    "version": "0.16.0",
+    "license": "MIT",
+    "project_urls": [],
+    "license_files": [
+      "h11-0.16.0/h11-0.16.0.dist-info/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "name": "hf-xet",
+    "version": "1.6.0",
+    "license": "Apache-2.0",
+    "project_urls": [
+      "Documentation, https://huggingface.co/docs/hub/xet/index",
+      "Homepage, https://github.com/huggingface/xet-core",
+      "Issues, https://github.com/huggingface/xet-core/issues",
+      "Repository, https://github.com/huggingface/xet-core.git"
+    ],
+    "license_files": [
+      "hf-xet-1.6.0/hf_xet-1.6.0.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "httpcore2",
+    "version": "2.13.1",
+    "license": "BSD-3-Clause",
+    "project_urls": [
+      "Changelog, https://github.com/pydantic/httpx2/blob/main/src/httpcore2/CHANGELOG.md",
+      "Homepage, https://github.com/pydantic/httpx2",
+      "Source, https://github.com/pydantic/httpx2/blob/main/src/httpcore2"
+    ],
+    "license_files": [
+      "httpcore2-2.13.1/httpcore2-2.13.1.dist-info/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "name": "httpx2",
+    "version": "2.13.1",
+    "license": "BSD-3-Clause",
+    "project_urls": [
+      "Changelog, https://github.com/pydantic/httpx2/blob/main/src/httpx2/CHANGELOG.md",
+      "Homepage, https://github.com/pydantic/httpx2",
+      "Source, https://github.com/pydantic/httpx2"
+    ],
+    "license_files": [
+      "httpx2-2.13.1/httpx2-2.13.1.dist-info/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "name": "huggingface_hub",
+    "version": "2.1.1",
+    "license": "Apache-2.0",
+    "project_urls": [],
+    "license_files": [
+      "huggingface_hub-2.1.1/huggingface_hub-2.1.1.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "idna",
+    "version": "3.20",
+    "license": "BSD-3-Clause",
+    "project_urls": [
+      "Changelog, https://github.com/kjd/idna/blob/master/HISTORY.md",
+      "Issue tracker, https://github.com/kjd/idna/issues",
+      "Source, https://github.com/kjd/idna"
+    ],
+    "license_files": [
+      "idna-3.20/idna-3.20.dist-info/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "name": "mlx",
+    "version": "0.32.3",
+    "license": "MIT",
+    "project_urls": [],
+    "license_files": [
+      "mlx-0.32.3/mlx-0.32.3.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "mlx-metal",
+    "version": "0.32.3",
+    "license": "MIT",
+    "project_urls": [],
+    "license_files": [
+      "mlx-metal-0.32.3/mlx/include/metal_cpp/LICENSE.txt",
+      "mlx-metal-0.32.3/mlx_metal-0.32.3.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "mlx-qwen3-asr",
+    "version": "0.4.4",
+    "license": "Apache-2.0",
+    "project_urls": [
+      "Homepage, https://github.com/moona3k/mlx-qwen3-asr",
+      "Repository, https://github.com/moona3k/mlx-qwen3-asr",
+      "Issues, https://github.com/moona3k/mlx-qwen3-asr/issues"
+    ],
+    "license_files": [
+      "mlx-qwen3-asr-0.4.4/mlx_qwen3_asr-0.4.4.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "numpy",
+    "version": "2.5.3",
+    "license": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+    "project_urls": [
+      "homepage, https://numpy.org",
+      "documentation, https://numpy.org/doc/",
+      "source, https://github.com/numpy/numpy",
+      "download, https://pypi.org/project/numpy/#files",
+      "tracker, https://github.com/numpy/numpy/issues",
+      "release notes, https://numpy.org/doc/stable/release"
+    ],
+    "license_files": [
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/LICENSE.txt",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/_core/src/highway/LICENSE",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/ma/LICENSE",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/random/LICENSE.md",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/random/src/distributions/LICENSE.md",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/random/src/philox/LICENSE.md",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md",
+      "numpy-2.5.3/numpy-2.5.3.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md",
+      "numpy-2.5.3/numpy/_core/include/numpy/random/LICENSE.txt",
+      "numpy-2.5.3/numpy/ma/LICENSE",
+      "numpy-2.5.3/numpy/random/LICENSE.md"
+    ]
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "license": "Apache-2.0 OR BSD-2-Clause",
+    "project_urls": [
+      "Documentation, https://packaging.pypa.io/",
+      "Source, https://github.com/pypa/packaging"
+    ],
+    "license_files": [
+      "packaging-26.3/packaging-26.3.dist-info/licenses/LICENSE",
+      "packaging-26.3/packaging-26.3.dist-info/licenses/LICENSE.APACHE",
+      "packaging-26.3/packaging-26.3.dist-info/licenses/LICENSE.BSD"
+    ]
+  },
+  {
+    "name": "PyYAML",
+    "version": "6.0.3",
+    "license": "MIT",
+    "project_urls": [
+      "Bug Tracker, https://github.com/yaml/pyyaml/issues",
+      "CI, https://github.com/yaml/pyyaml/actions",
+      "Documentation, https://pyyaml.org/wiki/PyYAMLDocumentation",
+      "Mailing lists, http://lists.sourceforge.net/lists/listinfo/yaml-core",
+      "Source Code, https://github.com/yaml/pyyaml"
+    ],
+    "license_files": [
+      "PyYAML-6.0.3/pyyaml-6.0.3.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "regex",
+    "version": "2026.9.29",
+    "license": "Apache-2.0 AND CNRI-Python",
+    "project_urls": [
+      "Homepage, https://github.com/mrabarnett/mrab-regex"
+    ],
+    "license_files": [
+      "regex-2026.9.29/regex-2026.9.29.dist-info/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "name": "tqdm",
+    "version": "4.70.1",
+    "license": "MPL-2.0 AND MIT",
+    "project_urls": [
+      "homepage, https://tqdm.github.io",
+      "repository, https://github.com/tqdm/tqdm",
+      "changelog, https://tqdm.github.io/releases",
+      "wiki, https://github.com/tqdm/tqdm/wiki"
+    ],
+    "license_files": [
+      "tqdm-4.70.1/tqdm-4.70.1.dist-info/licenses/LICENCE"
+    ]
+  },
+  {
+    "name": "truststore",
+    "version": "0.10.4",
+    "license": "MIT",
+    "project_urls": [
+      "Documentation, https://truststore.readthedocs.io",
+      "Source, https://github.com/sethmlarson/truststore"
+    ],
+    "license_files": [
+      "truststore-0.10.4/truststore-0.10.4.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "typing_extensions",
+    "version": "4.16.0",
+    "license": "PSF-2.0",
+    "project_urls": [
+      "Bug Tracker, https://github.com/python/typing_extensions/issues",
+      "Changes, https://github.com/python/typing_extensions/blob/main/CHANGELOG.md",
+      "Documentation, https://typing-extensions.readthedocs.io/",
+      "Home, https://github.com/python/typing_extensions",
+      "Q & A, https://github.com/python/typing/discussions",
+      "Repository, https://github.com/python/typing_extensions"
+    ],
+    "license_files": [
+      "typing_extensions-4.16.0/typing_extensions-4.16.0.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "pyinstaller",
+    "version": "6.16.0",
+    "license": "GPLv2-or-later with a special exception which allows to use PyInstaller to build and distribute non-free programs (including commercial ones)",
+    "project_urls": [
+      "Homepage, https://pyinstaller.org",
+      "Documentation, https://pyinstaller.org",
+      "Source Code, https://github.com/pyinstaller/pyinstaller",
+      "Release Notes, https://pyinstaller.org/en/stable/CHANGES.html"
+    ],
+    "license_files": [
+      "pyinstaller-6.16.0/pyinstaller-6.16.0.dist-info/licenses/COPYING.txt"
+    ]
+  }
+]

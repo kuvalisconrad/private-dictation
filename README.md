@@ -85,9 +85,31 @@ The compiled privacy test must report permission-denied network attempts from bo
 .build-env/bin/python tests/measure-engine.py
 ```
 
-The bundled smoke test uses synthetic speech and silence, checks temporary-file deletion on success and failure, and runs under a profile denying both network access and access to installed Python runtimes. The downloader test exercises actual pinned HTTPS resume and checksum verification without downloading another copy of the large weights. Measurement output stores only timings, memory, and word counts, not transcripts or audio.
+The bundled smoke test uses synthetic speech and silence, checks temporary-file deletion on success and failure, and runs under a profile denying both network access and access to installed Python runtimes. The downloader test exercises actual pinned HTTPS resume and checksum verification without downloading another copy of the large weights. Benchmark reports contain machine/model identifiers and timings/memory, with no transcripts or audio; the methodology below explains their limits.
 
 On the tested M5/32 GB machine, the bundled engine processed a synthetic 30-second recording in **4.6 seconds** and a 120-second recording in **19.3 seconds** after loading. First-use shader compilation and other apps can change timings. These are functionality and resource measurements, **not a real-world accuracy benchmark or a head-to-head comparison with Wispr Flow**. Test natural speech, names, numbers, and technical terms that matter to you.
+
+### Synthetic hardware benchmark
+
+`scripts/benchmark.py` measures the actual frozen engine using only generated speech from an already installed English macOS voice. It never records a microphone, reads private audio, or downloads anything. The benchmark and its children inherit a network-denying sandbox, verified before synthesis. Temporary synthetic audio is removed on completion, failure, or normal cancellation. Abrupt power loss or an uncatchable process kill can prevent cleanup.
+
+After building the app and installing the model through its setup:
+
+```sh
+mkdir -p release
+.build-env/bin/python scripts/benchmark.py --quick --output release/benchmark-quick.json
+.build-env/bin/python scripts/benchmark.py --output release/benchmark-full.json
+```
+
+The quick run uses two fresh engine processes and warm 4/30/120-second clips with 2/1/1 samples; it is intended to finish within a minute on the tested M5. It is a verification run, not evidence for tail latency. The default full run uses five fresh processes plus five warm samples at each duration and takes several minutes. `--startup-repeats` and `--repeats` adjust those counts. Use `--app "/Applications/Private Dictation.app"` to test an installed release instead of the local build. `--voice` selects another voice that is already installed.
+
+**Fresh-process startup** means wall time from engine spawn until its model-ready response. The first 4-second request in each fresh process is reported separately. **Warm session** means subsequent requests in the last process after that first request has primed it. File caches and Metal shader caches are uncontrolled: these are never claimed to be cold-cache measurements, and later process starts may benefit from caches. Wall request latency excludes speaking time, the native UI, and text insertion. Repeating a short synthetic phrase can be easier than varied natural speech and measures performance, not recognition accuracy.
+
+Reports include raw timings and sample counts. P50/P95 use the nearest-rank method only when **N ≥ 5**; at N=5 P95 is simply the maximum, so meaningful tail claims need substantially more samples. Kernel-reported lifetime peak process RSS and MLX allocator peak are separate, overlapping measurements and must not be added together. The MLX peak includes model loading and is not a per-request memory peak. Thermal state and background applications are uncontrolled; record them separately and repeat under comparable conditions. Power source and Low Power Mode are included when macOS exposes them.
+
+The JSON records chip, physical/guest-visible RAM, macOS, model revision, app/engine hashes, and benchmark source status. It contains no serial number, hostname, private file paths, raw transcripts, or audio. App source commits cannot be inferred reliably from unsigned binaries: pass `--app-commit` with the actual full 40-character build commit if known; otherwise the report says `unknown`. The benchmark's checkout commit is recorded separately. `--environment bare-metal` or `--environment virtual-machine` is an operator-supplied label, not automatic verification; the default is `unknown`. Get written provider confirmation before treating a rented machine as physical hardware with its advertised RAM.
+
+**True minimum requirements need actual machines at the proposed minimum.** A 64 GB Mac with a memory limit does not simulate a 16 GB Mac's unified-memory contention, swap, GPU behavior, or user experience. Test real 16 GB hardware, representative background applications, repeated long dictations, and native shortcut/insertion behavior, with headroom. This synthetic tool alone cannot establish supported hardware or parity with Wispr Flow.
 
 ## Model maintenance
 

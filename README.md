@@ -4,18 +4,20 @@ A native Mac app for English dictation. Qwen3-ASR 1.7B recognizes speech locally
 
 The source is open under MIT at [kuvalisconrad/private-dictation](https://github.com/kuvalisconrad/private-dictation). The packaged app is planned as a **US$5 one-time purchase**; checkout is not live yet. You can build the source yourself. Third-party model and runtime licenses remain their own; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
+See [ROADMAP.md](ROADMAP.md) for implemented features, pending validation and launch work. The polished v1 is a review build; final installation and live insertion verification are still pending.
+
 ## Requirements and current release status
 
 | Requirement | Minimum / recommendation |
 | --- | --- |
-| Processor | Apple Silicon; **M4 or newer recommended for purchase** |
+| Processor | Apple Silicon; **M4/M5 provisional launch guidance** |
 | macOS | **14 Sonoma or later** |
-| Unified memory | **16 GB minimum; 24 GB recommended** |
+| Unified memory | **16 GB app-enforced floor; 24 GB provisionally recommended** |
 | Free disk space | **6 GB for model setup; 8 GB recommended** |
 | Language | English only in version 1 |
 | Permissions | Microphone and Accessibility |
 
-The actual app has been tested on an **M5 MacBook with 32 GB RAM and macOS 26.7**. Earlier Apple Silicon support follows the upstream engine and compatible binary builds; their speed has not been tested by this project. The app checks Apple Silicon and memory, but does not impose an M4-only gate. Buy conservatively if your machine is older.
+The packaged transcription engine has been measured on an **M5 MacBook with 32 GB RAM and macOS 26.7**. M4 and actual 16 GB machines still need validation, as does final live insertion in the polished v1 build. Earlier Apple Silicon compatibility follows the upstream engine and compatible binary builds; their speed has not been tested by this project. The app checks Apple Silicon and memory, but does not impose an M4-only gate. These figures are provisional guidance, not a benchmark-established minimum or a claim that older chips cannot run the model. Sales remain disabled pending validation and release setup.
 
 The download archive is approximately **66 MB**; the installed app is approximately **200 MiB**. Its first-run model download is **4,703,055,333 bytes** (about 4.7 GB). Minimum free space includes about 28% headroom over the model download; recommended space allows more room for the app and archive. The measured engine uses about **4.1 GB** for persistent model allocations and reached **8.2 GB** peak MLX allocations including loading. The RAM recommendation also leaves room for macOS and other apps.
 

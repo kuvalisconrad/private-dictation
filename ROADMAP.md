@@ -24,7 +24,7 @@ Updated **5 October 2026** (Asia/Bangkok). This tracks the Mac app, website and 
 - [x] Temporary recording cleanup, cancellation, two-minute recording limit, timeouts and engine recovery.
 - [x] Native unit checks, packaged-engine smoke/cleanup/offline checks, UI rendering checks and a portable review ZIP.
 
-**Installed locally:** the development Mac now has one copy, `/Applications/Private Dictation.app`, with a pinned Dock icon. Old prototypes were moved to Trash. Build 101 fixed model recognition: it recognizes the actual pinned model inventory and loads the existing model without a repeat download. Download/resume checksum verification, offline inference and temporary-audio cleanup passed on the installed copy. Build 102 adds a reveal-installed-app button and headless setup diagnostics; build products use a `.noindex` folder. Local signing now uses the owner's existing Apple Development identity; Microphone is authorized. The owner's live test now reaches recording and a transcribed result, confirming the desktop permission checks pass; automatic insertion is still blocked by its focus gate. Build 103 is staged for a background update, with coherent Accessibility field/app lookup, a fresh destination on manual stop, bounded modifier-release retries and specific rejection messages. It is not yet installed or verified through live dictation. Further testing is in the background at the owner's request. Developer ID distribution signing/notarization remains launch work.
+**Installed locally:** at the owner's request, the development Mac was reverted to the original v0.1 prototype on 5 October. It runs at `/Applications/Private Dictation.app`, with the existing Dock icon and stable Apple Development permission identity retained. Its executable code, speech worker and model configuration match the archived working prototype. This personal rollback briefly uses the clipboard and restores prior clipboard contents; it does not implement the release build's clipboard-free promise. The polished build 102 is preserved in `build/Rollbacks.noindex`; build 103's focus repair is staged separately. Neither its release installation nor live insertion verification is complete. Source improvements remain intact. Developer ID distribution signing/notarization remains launch work.
 
 ### Website and content — implemented and published
 
@@ -47,7 +47,7 @@ Updated **5 October 2026** (Asia/Bangkok). This tracks the Mac app, website and 
 
 ## Next: finish the app you will actually use
 
-1. [x] Install the polished build safely, preserving the existing model/settings, removing duplicate launcher apps and pinning the correct Dock icon.
+1. [ ] Restore a verified clipboard-free polished build after the temporary prototype rollback. Preserve model/settings, the single canonical Applications copy and its Dock icon.
 2. [x] Verify normal desktop launch recognizes Microphone and Accessibility: the owner's live test starts recording and reaches a transcribed result. This does not establish successful insertion; headless permission booleans alone would not establish the desktop grants.
 3. [ ] Verify live insertion in a genuinely foreground TextEdit document for both Accessibility and Unicode paths. Earlier tests never reached actual insertion because their TextEdit focus prerequisite failed. This is an incomplete integration test, not evidence that insertion works.
 4. [ ] Test normal dictation in Codex/browser fields, TextEdit and other common apps; cover focus changes, unsupported fields, cancellation and partial-result retry/discard.

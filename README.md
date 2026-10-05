@@ -4,7 +4,7 @@ A native Mac app for English dictation. Qwen3-ASR 1.7B recognizes speech locally
 
 The source is open under MIT at [kuvalisconrad/private-dictation](https://github.com/kuvalisconrad/private-dictation). The packaged app is planned as a **US$5 one-time purchase**; checkout is not live yet. You can build the source yourself. Third-party model and runtime licenses remain their own; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-See [ROADMAP.md](ROADMAP.md) for implemented features, pending validation and launch work. The polished v1 is installed on the development Mac, but its current live test reaches a transcribed result and then blocks insertion. A focus-handling repair is staged; successful live insertion and commercial release setup remain pending.
+See [ROADMAP.md](ROADMAP.md) for implemented features, pending validation and launch work. The development Mac has temporarily reverted to the original v0.1 prototype after the polished build blocked live insertion. That prototype briefly uses and restores the clipboard. This repository contains the clipboard-free v1 review build; its focus repair is staged, and successful live insertion and commercial release setup remain pending.
 
 ## Requirements and current release status
 

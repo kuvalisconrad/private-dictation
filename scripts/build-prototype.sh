@@ -9,7 +9,7 @@ xcrun clang -target arm64-apple-macos14.0 -Wno-deprecated-declarations \
 xcrun swiftc -target arm64-apple-macos14.0 -swift-version 5 -O \
   -import-objc-header "$ROOT/Sources/Privacy.h" \
   "$ROOT/Sources/ModifierShortcut.swift" "$ROOT/Sources/RecordingOutputMute.swift" \
-  "$ROOT/Prototype/main.swift" "$BUILD/Privacy.o" \
+  "$ROOT/Sources/BuiltInMicrophone.swift" "$ROOT/Prototype/main.swift" "$BUILD/Privacy.o" \
   -framework AppKit -framework AVFoundation -framework ApplicationServices -framework CoreAudio \
   -o "$APP/Contents/MacOS/LocalDictation"
 cp "$ROOT/Prototype/Info.plist" "$APP/Contents/Info.plist"

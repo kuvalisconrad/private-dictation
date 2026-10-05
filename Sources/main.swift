@@ -430,6 +430,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
         guard outputMute.begin() else {
             setPhase(.ready, "Could not mute system audio. Check your output device."); return
         }
+        guard BuiltInMicrophone.selectDefault() else {
+            outputMute.end(); setPhase(.ready, "The built-in Mac microphone is unavailable. Recording did not start."); return
+        }
         let path = recordings.appendingPathComponent(UUID().uuidString + ".wav")
         do {
             let audio = try AVAudioRecorder(url: path, settings: [AVFormatIDKey: kAudioFormatLinearPCM,

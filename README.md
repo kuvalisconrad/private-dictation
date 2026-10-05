@@ -42,6 +42,8 @@ Change the shortcut in **Settings → Shortcut**. Supported choices are a chord 
 
 If you change the destination while transcription or insertion is in progress, the remaining result stays in memory for retry or discard. Use the shortcut after focusing the intended nonsecure text field. Direct insertion uses Accessibility with a Unicode typing fallback; some apps may not expose a compatible editable field. Secure fields and Secure Keyboard Entry are deliberately excluded. Pause another dictation app if it competes for the same shortcut.
 
+For background troubleshooting, run the installed executable with `--setup-check`. It prints hardware/model/network booleans and the invoking process's permission state, opens no window, and records no audio. Exit status 2 means a check failed. Permission results apply to that process: macOS can attribute a terminal-launched helper to its parent app, so confirm the normal desktop launch's permission state in setup ([Qt's explanation](https://www.qt.io/blog/the-curious-case-of-the-responsible-process)). **Show installed app** reveals the precise app copy to select in macOS permission settings.
+
 ## Dictionary and optional insights
 
 **Dictionary** stores entries you explicitly create: a heard word or phrase and the spelling you want. Entries also provide local vocabulary hints to the model. Replacements are case-insensitive, respect word boundaries, prefer longer matches, and do not cascade into another rule. This corrects names and recurring mistakes without a cloud rewriting service.
@@ -69,10 +71,10 @@ git clone https://github.com/kuvalisconrad/private-dictation.git
 cd private-dictation
 bash scripts/setup.sh
 bash scripts/build.sh
-open "build/Private Dictation.app"
+open "build/Products.noindex/Private Dictation.app"
 ```
 
-`build.sh` **only builds by default**. `bash scripts/build.sh --install` explicitly installs into `~/Applications/Private Dictation.app`; quit an installed build before replacing it. For local signing, the script uses the sole valid Apple Development identity if available, or the identity explicitly set in `LOCAL_SIGNING_IDENTITY`. Otherwise it warns and signs ad hoc; every ad hoc rebuild can invalidate permissions. Distribution signing still uses `DEVELOPER_ID_IDENTITY`.
+`build.sh` **only builds by default**. `bash scripts/build.sh --install` explicitly installs into `/Applications/Private Dictation.app` (override with `INSTALL_DIRECTORY`); quit an installed build before replacing it. For local signing, the script uses the sole valid Apple Development identity if available, or the identity explicitly set in `LOCAL_SIGNING_IDENTITY`. Build products live in `Products.noindex` so they do not clutter the launcher. Installation refuses to replace a running app. Without a usable identity it warns and signs ad hoc; every ad hoc rebuild can invalidate permissions. Distribution signing still uses `DEVELOPER_ID_IDENTITY`.
 
 ```sh
 bash scripts/package-release.sh
@@ -80,14 +82,14 @@ bash scripts/package-release.sh
 
 This produces the ZIP and `SHA256SUMS.txt` in `release/`. Developer ID signing is optional through `DEVELOPER_ID_IDENTITY`. Explicit notarization uses `NOTARY_PROFILE` and `scripts/package-release.sh --notarize`. Credentials are never embedded in the app.
 
-Set `PRIVATE_DICTATION_APP` to a full installed app path to package or run `tests/bundled-smoke.py` / `tests/downloader-smoke.py` against that copy instead of `build/Private Dictation.app`. This avoids creating an extra launcher-visible copy just to verify an installed build.
+Set `PRIVATE_DICTATION_APP` to a full installed app path to package or run `tests/bundled-smoke.py` / `tests/downloader-smoke.py` against that copy instead of `build/Products.noindex/Private Dictation.app`. This avoids creating an extra launcher-visible copy just to verify an installed build.
 
 ## Verification and measured performance
 
 The compiled privacy test must report permission-denied network attempts from both the app and engine:
 
 ```sh
-"build/Private Dictation.app/Contents/MacOS/LocalDictation" --self-test
+"build/Products.noindex/Private Dictation.app/Contents/MacOS/LocalDictation" --self-test
 .build-env/bin/python tests/bundled-smoke.py
 .build-env/bin/python tests/downloader-smoke.py
 .build-env/bin/python tests/measure-engine.py

@@ -122,6 +122,7 @@ final class SetupWindow: NSWindowController {
     var onModel: (() -> Void)?
     var onMicrophone: (() -> Void)?
     var onAccessibility: (() -> Void)?
+    var onRevealApp: (() -> Void)?
     private let headline = NSTextField(labelWithString: "Your voice.\nYour Mac.")
     private let detail = NSTextField(wrappingLabelWithString: "")
     private let modelDetail = NSTextField(wrappingLabelWithString: "")
@@ -130,6 +131,7 @@ final class SetupWindow: NSWindowController {
     private let microphoneButton = SetupButton(title: "Allow microphone", target: nil, action: nil)
     private let accessibilityDetail = NSTextField(wrappingLabelWithString: "")
     private let accessibilityButton = SetupButton(title: "Open settings", target: nil, action: nil)
+    private let revealAppButton = SetupButton(title: "Show installed app", target: nil, action: nil)
     private let shortcutDetail = NSTextField(wrappingLabelWithString: "")
     private let privacy = NSTextField(wrappingLabelWithString: "")
     private let connection = NSTextField(labelWithString: "○  SETUP")
@@ -227,9 +229,10 @@ final class SetupWindow: NSWindowController {
         modelButton.target = self; modelButton.action = #selector(modelClicked); modelButton.primary = true
         microphoneButton.target = self; microphoneButton.action = #selector(microphoneClicked)
         accessibilityButton.target = self; accessibilityButton.action = #selector(accessibilityClicked)
+        revealAppButton.target = self; revealAppButton.action = #selector(revealAppClicked)
         doneButton.target = self; doneButton.action = #selector(doneClicked); doneButton.primary = true
         doneButton.keyEquivalent = "\r"
-        for button in [modelButton, microphoneButton, accessibilityButton, doneButton] {
+        for button in [modelButton, microphoneButton, accessibilityButton, revealAppButton, doneButton] {
             button.bezelStyle = .rounded; button.isBordered = false
             button.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
@@ -239,7 +242,7 @@ final class SetupWindow: NSWindowController {
         let steps = NSStackView(views: [
             card("01", "The local speech model", modelDetail, modelButton, extra: progress),
             card("02", "Your microphone", microphoneDetail, microphoneButton),
-            card("03", "The shortcut & insertion", accessibilityDetail, accessibilityButton)
+            card("03", "The shortcut & insertion", accessibilityDetail, accessibilityButton, extra: revealAppButton)
         ])
         steps.orientation = .vertical; steps.alignment = .leading; steps.spacing = 9
         column.addArrangedSubview(steps)
@@ -331,7 +334,8 @@ final class SetupWindow: NSWindowController {
         microphoneButton.isEnabled = !status.microphoneReady
         microphoneButton.invalidateIntrinsicContentSize(); microphoneButton.needsDisplay = true
         accessibilityDetail.stringValue = status.accessibilityReady ? "Allowed. The shortcut and automatic insertion are ready." :
-            "Enable Private Dictation in System Settings. If already enabled, remove and re-add this copy, then reopen. Needed for the shortcut and insertion; document text is not read."
+            "In Accessibility settings, use + to add this installed copy and enable it. Remove any stale Private Dictation entry first, then quit and reopen the app. Document text is not read."
+        revealAppButton.isHidden = status.accessibilityReady
         accessibilityButton.title = status.accessibilityReady ? "Allowed ✓" : "Open settings"
         accessibilityButton.isEnabled = !status.accessibilityReady
         accessibilityButton.invalidateIntrinsicContentSize(); accessibilityButton.needsDisplay = true
@@ -370,5 +374,6 @@ final class SetupWindow: NSWindowController {
     @objc private func modelClicked() { onModel?() }
     @objc private func microphoneClicked() { onMicrophone?() }
     @objc private func accessibilityClicked() { onAccessibility?() }
+    @objc private func revealAppClicked() { onRevealApp?() }
     @objc private func doneClicked() { window?.close() }
 }

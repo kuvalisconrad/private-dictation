@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-APP="${PRIVATE_DICTATION_APP:-$ROOT/build/Private Dictation.app}"
+APP="${PRIVATE_DICTATION_APP:-$ROOT/build/Products.noindex/Private Dictation.app}"
 RELEASE="$ROOT/release"
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Contents/Info.plist")"
 mkdir -p "$RELEASE"

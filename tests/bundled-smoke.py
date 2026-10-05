@@ -9,7 +9,7 @@ import tempfile
 import wave
 
 root = Path(__file__).resolve().parents[1]
-app = Path(os.environ.get('PRIVATE_DICTATION_APP', str(root / 'build/Private Dictation.app')))
+app = Path(os.environ.get('PRIVATE_DICTATION_APP', str(root / 'build/Products.noindex/Private Dictation.app')))
 engine = app / 'Contents/Resources/Engine/PrivateDictationEngine'
 data = Path.home() / 'Library/Application Support/Local Dictation'
 model = data / 'models/qwen3-asr-1.7b'

@@ -273,7 +273,7 @@ def positive(value):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--app', type=Path, default=ROOT / 'build/Private Dictation.app')
+    parser.add_argument('--app', type=Path, default=ROOT / 'build/Products.noindex/Private Dictation.app')
     parser.add_argument('--model-dir', type=Path, default=Path.home() /
                         'Library/Application Support/Local Dictation/models/qwen3-asr-1.7b')
     parser.add_argument('--quick', action='store_true', help='Two fresh starts and 2/1/1 warm clips; usually under a minute on M5')

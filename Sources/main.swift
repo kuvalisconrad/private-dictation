@@ -64,6 +64,22 @@ if CommandLine.arguments.contains("--self-test") {
     } catch { fputs("Privacy self-test could not run.\n", stderr); exit(1) }
 }
 
+// Read-only diagnostics for support without opening a window or recording.
+if CommandLine.arguments.contains("--setup-check") {
+    let checks: [String: Bool] = [
+        "hardware_supported": hardwareSupported,
+        "model_installed": modelIsInstalled(),
+        "process_microphone_authorized": AVCaptureDevice.authorizationStatus(for: .audio) == .authorized,
+        "process_accessibility_authorized": AXIsProcessTrusted(),
+        "network_blocked": networkBlocked
+    ]
+    var result = checks as [String: Any]
+    result["permission_scope"] = "current_process"
+    let data = try! JSONSerialization.data(withJSONObject: result, options: [.sortedKeys])
+    print(String(decoding: data, as: UTF8.self))
+    exit(checks.values.allSatisfy { $0 } ? 0 : 2)
+}
+
 // A fixed, synthetic sentence for verifying real field insertion without a
 // microphone, a transcript argument, or a clipboard operation. Not dictation.
 if CommandLine.arguments.contains("--insertion-self-test") || CommandLine.arguments.contains("--unicode-insertion-self-test") {
@@ -257,6 +273,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
         }
         setup.onMicrophone = { [weak self] in self?.requestMicrophone() }
         setup.onAccessibility = { [weak self] in self?.requestAccessibility() }
+        setup.onRevealApp = {
+            NSWorkspace.shared.activateFileViewerSelecting([Bundle.main.bundleURL.resolvingSymlinksInPath()])
+        }
         settings.onShortcutChange = { [weak self] candidate in
             guard let self = self else { return "Settings unavailable." }
             if let error = self.hotKey.register(candidate) {

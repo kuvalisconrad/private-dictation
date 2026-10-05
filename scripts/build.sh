@@ -2,7 +2,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BUILD="$ROOT/build"
-APP="$BUILD/Private Dictation.app"
+APP="$BUILD/Products.noindex/Private Dictation.app"
+INSTALL_DIRECTORY="${INSTALL_DIRECTORY:-/Applications}"
 BUILD_PYTHON="${BUILD_PYTHON:-$ROOT/.build-env/bin/python}"
 INSTALL=0
 for ARG in "$@"; do
@@ -12,6 +13,9 @@ for ARG in "$@"; do
     *) printf 'Usage: scripts/build.sh [--install]\n' >&2; exit 2 ;;
   esac
 done
+if [ "$INSTALL" = 1 ] && pgrep -x LocalDictation >/dev/null; then
+  printf 'Quit Private Dictation before installing an update.\n' >&2; exit 1
+fi
 if [ ! -x "$BUILD_PYTHON" ]; then
   printf 'Build environment missing. Run scripts/setup.sh first.\n' >&2
   exit 1
@@ -49,7 +53,12 @@ fi
 codesign --verify --deep --strict "$APP"
 printf '\nBuilt: %s\n' "$APP"
 if [ "$INSTALL" = 1 ]; then
-  mkdir -p "$HOME/Applications"
-  ditto "$APP" "$HOME/Applications/Private Dictation.app"
-  printf 'Installed: %s/Applications/Private Dictation.app\n' "$HOME"
+  mkdir -p "$INSTALL_DIRECTORY"
+  if [ ! -w "$INSTALL_DIRECTORY" ]; then
+    printf 'Cannot write %s. Choose a writable INSTALL_DIRECTORY.\n' "$INSTALL_DIRECTORY" >&2; exit 1
+  fi
+  ditto "$APP" "$INSTALL_DIRECTORY/Private Dictation.app"
+  /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+    -f "$INSTALL_DIRECTORY/Private Dictation.app"
+  printf 'Installed: %s/Private Dictation.app\n' "$INSTALL_DIRECTORY"
 fi

@@ -7,7 +7,8 @@ import subprocess
 import tempfile
 
 root = Path(__file__).resolve().parents[1]
-engine = root / 'build/Private Dictation.app/Contents/Resources/Engine/PrivateDictationEngine'
+app = Path(os.environ.get('PRIVATE_DICTATION_APP', str(root / 'build/Private Dictation.app')))
+engine = app / 'Contents/Resources/Engine/PrivateDictationEngine'
 model = Path.home() / 'Library/Application Support/Local Dictation/models/qwen3-asr-1.7b'
 spec = json.loads((root / 'model-manifest.json').read_text())
 with tempfile.TemporaryDirectory(prefix='private-dictation-download-test-') as temporary:

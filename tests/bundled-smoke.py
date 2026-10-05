@@ -9,7 +9,8 @@ import tempfile
 import wave
 
 root = Path(__file__).resolve().parents[1]
-engine = root / 'build/Private Dictation.app/Contents/Resources/Engine/PrivateDictationEngine'
+app = Path(os.environ.get('PRIVATE_DICTATION_APP', str(root / 'build/Private Dictation.app')))
+engine = app / 'Contents/Resources/Engine/PrivateDictationEngine'
 data = Path.home() / 'Library/Application Support/Local Dictation'
 model = data / 'models/qwen3-asr-1.7b'
 profile = ('(version 1)(allow default)(deny network*)'

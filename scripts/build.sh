@@ -44,7 +44,7 @@ cp "$ROOT/Sources/Info.plist" "$APP/Contents/Info.plist"
 if [ -n "${DEVELOPER_ID_IDENTITY:-}" ]; then
   "$BUILD_PYTHON" "$ROOT/scripts/sign-release.py" "$APP" "$DEVELOPER_ID_IDENTITY"
 else
-  codesign --force --deep --sign - --identifier local.mike.dictation "$APP"
+  "$BUILD_PYTHON" "$ROOT/scripts/sign-local.py" "$APP"
 fi
 codesign --verify --deep --strict "$APP"
 printf '\nBuilt: %s\n' "$APP"

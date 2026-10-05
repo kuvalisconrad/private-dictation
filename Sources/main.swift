@@ -27,17 +27,8 @@ private var hardwareSupported: Bool {
 }
 
 private func modelIsInstalled() -> Bool {
-    guard files.fileExists(atPath: modelDirectory.appendingPathComponent("config.json").path),
-          files.fileExists(atPath: modelDirectory.appendingPathComponent("tokenizer.json").path),
-          let data = try? Data(contentsOf: modelDirectory.appendingPathComponent("model.safetensors.index.json")),
-          let index = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-          let weights = index["weight_map"] as? [String: String], !weights.isEmpty else { return false }
-    return Set(weights.values).allSatisfy { file in
-        guard !file.contains("/"), !file.contains(".."), file.hasSuffix(".safetensors"),
-              let attributes = try? files.attributesOfItem(atPath: modelDirectory.appendingPathComponent(file).path),
-              let size = attributes[.size] as? NSNumber else { return false }
-        return size.int64Value > 0
-    }
+    guard let manifest = try? Data(contentsOf: resources.appendingPathComponent("model-manifest.json")) else { return false }
+    return ModelInstallation.isComplete(at: modelDirectory, manifest: manifest)
 }
 
 @discardableResult private func lockNetworking() -> Bool {
@@ -640,7 +631,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
         let modelDetail: String
         if phase == .downloading {
             let amount = ByteCountFormatter.string(fromByteCount: downloadedBytes, countStyle: .decimal)
-            modelDetail = "\(Int(downloadProgress * 100))% · \(amount) downloaded. You can pause and resume."
+            modelDetail = "\(Int(downloadProgress * 100))% · \(amount) downloaded or verified. Existing files are checked before downloading. You can pause and resume."
         } else if installed {
             modelDetail = "Qwen3-ASR 1.7B · full precision · English only. Stored locally."
         } else {

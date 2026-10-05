@@ -1,6 +1,6 @@
 # Private Dictation roadmap
 
-Updated **2 October 2026** (Asia/Bangkok). This tracks the Mac app, website and launch together. A checked item means the stated work is implemented; it does not mean the entire product is ready to sell.
+Updated **5 October 2026** (Asia/Bangkok). This tracks the Mac app, website and launch together. A checked item means the stated work is implemented; it does not mean the entire product is ready to sell.
 
 ## Product commitments
 
@@ -24,7 +24,7 @@ Updated **2 October 2026** (Asia/Bangkok). This tracks the Mac app, website and 
 - [x] Temporary recording cleanup, cancellation, two-minute recording limit, timeouts and engine recovery.
 - [x] Native unit checks, packaged-engine smoke/cleanup/offline checks, UI rendering checks and a portable review ZIP.
 
-**Not promoted yet:** the development Mac still runs the v0.1 prototype, which uses the clipboard temporarily. The polished v1 build exists in `build/Private Dictation.app`; final installation and live insertion checks are pending. It is ad hoc signed, not notarized.
+**Installed locally:** the development Mac now has one copy, `~/Applications/Private Dictation.app`, with a pinned Dock icon. Old prototypes were moved to Trash. Build 101 recognizes the actual pinned model inventory and loads the existing model without a repeat download. Download/resume checksum verification, offline inference and temporary-audio cleanup passed on the installed copy. Local signing now uses the owner's existing Apple Development identity; the one-time permission refresh and final live insertion checks are pending. Developer ID distribution signing/notarization remains launch work.
 
 ### Website and content — implemented and published
 
@@ -47,11 +47,12 @@ Updated **2 October 2026** (Asia/Bangkok). This tracks the Mac app, website and 
 
 ## Next: finish the app you will actually use
 
-1. [ ] Install the polished build safely, preserving the existing model/settings and checking Microphone/Accessibility permissions after upgrade.
-2. [ ] Verify live insertion in a genuinely foreground TextEdit document for both Accessibility and Unicode paths. Earlier automation could not make TextEdit foreground; the safety guard correctly refused insertion.
-3. [ ] Test normal dictation in Codex/browser fields, TextEdit and other common apps; cover focus changes, unsupported fields, cancellation and partial-result retry/discard.
-4. [ ] Exercise custom shortcuts and dictionary corrections through real recording sessions. Confirm recording has no floating panel and insertion never touches the clipboard.
-5. [ ] Run a clean first-install/model-download/permission flow on another Mac, including recovery from interrupted setup.
+1. [x] Install the polished build safely, preserving the existing model/settings, removing duplicate launcher apps and pinning the correct Dock icon.
+2. [ ] Refresh Microphone/Accessibility once for the stable Apple Development identity and verify both are recognized by the app.
+3. [ ] Verify live insertion in a genuinely foreground TextEdit document for both Accessibility and Unicode paths. Earlier automation could not make TextEdit foreground; the safety guard correctly refused insertion.
+4. [ ] Test normal dictation in Codex/browser fields, TextEdit and other common apps; cover focus changes, unsupported fields, cancellation and partial-result retry/discard.
+5. [ ] Exercise custom shortcuts and dictionary corrections through real recording sessions. Confirm recording has no floating panel and insertion never touches the clipboard.
+6. [ ] Run a clean first-install/model-download/permission flow on another Mac, including recovery from interrupted setup.
 
 ## Then: establish trustworthy launch requirements and accuracy
 

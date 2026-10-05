@@ -4,7 +4,7 @@ A native Mac app for English dictation. Qwen3-ASR 1.7B recognizes speech locally
 
 The source is open under MIT at [kuvalisconrad/private-dictation](https://github.com/kuvalisconrad/private-dictation). The packaged app is planned as a **US$5 one-time purchase**; checkout is not live yet. You can build the source yourself. Third-party model and runtime licenses remain their own; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-See [ROADMAP.md](ROADMAP.md) for implemented features, pending validation and launch work. The polished v1 is a review build; final installation and live insertion verification are still pending.
+See [ROADMAP.md](ROADMAP.md) for implemented features, pending validation and launch work. The polished v1 is installed on the development Mac; wider live insertion verification and commercial release setup are still pending.
 
 ## Requirements and current release status
 
@@ -21,7 +21,7 @@ The packaged transcription engine has been measured on an **M5 MacBook with 32 G
 
 The download archive is approximately **66 MB**; the installed app is approximately **200 MiB**. Its first-run model download is **4,703,055,333 bytes** (about 4.7 GB). Minimum free space includes about 28% headroom over the model download; recommended space allows more room for the app and archive. The measured engine uses about **4.1 GB** for persistent model allocations and reached **8.2 GB** peak MLX allocations including loading. The RAM recommendation also leaves room for macOS and other apps.
 
-This is a **public preview**. Review builds are ad hoc signed, not Developer ID signed or notarized. macOS may require **System Settings → Privacy & Security → Open Anyway** after a first launch attempt. Do not disable Gatekeeper globally. Apple signing and notarization remain release work before a smooth commercial launch.
+This is a **public preview**. Local builds use an available Apple Development identity, or fall back to ad hoc signing. They are not Developer ID distribution builds or notarized. macOS may require **System Settings → Privacy & Security → Open Anyway** after a first launch attempt. Do not disable Gatekeeper globally. Developer ID signing and notarization remain release work before a smooth commercial launch.
 
 ## Install and dictate
 
@@ -31,6 +31,10 @@ Downloaded releases include their own Python runtime, MLX, and Metal resources. 
 2. Open it. Complete the explicit model download and permission setup.
 3. Allow **Microphone** for speech recording and **Accessibility** to detect the shortcut and insert text into the focused app.
 4. Click a text field. Tap **Command–Option** to start, speak, then tap it again to stop and insert the result.
+
+If Accessibility appears enabled in System Settings but setup still reports it missing, an older build's permission may be stale. Remove **Private Dictation** from the Accessibility list, add the installed copy again, enable it, then quit and reopen the app. Changing from an ad hoc signature to Apple Development also needs a fresh Microphone grant once. A consistent Apple signing identity allows subsequent local rebuilds to retain permission identity; the app always checks macOS's actual permission state.
+
+Build 101 fixes model readiness: this pinned model uses `vocab.json` and `merges.txt`, not `tokenizer.json`. Setup now checks the pinned inventory and exact file sizes. If all files are already present, it loads them without another download. During download/resume, progress includes checksum verification of existing files, which can temporarily hold the displayed percentage steady.
 
 The default shortcut fires when the modifiers are released. Either modifier order works. Adding another ordinary key cancels the modifier-only shortcut, so normal shortcuts remain usable. The microphone in the menu bar and the macOS microphone indicator show recording. Recordings stop automatically after two minutes. **Escape** discards a recording or pending result.
 
@@ -52,7 +56,7 @@ The first-run downloader is a separate, explicitly started setup process. It dow
 
 Audio is temporarily written to a private local WAV file, then deleted after transcription, cancellation, or normal quit. Crash leftovers are removed on the next launch. No transcript/audio log files or dictation history are implemented. Pending text and model inference buffers exist in memory. **Insertion does not access the system clipboard.** Explicit dictionary entries, shortcut settings, and optional aggregate insights are the local data retained by the app.
 
-Ordinary deletion is not forensic erasure: operating-system memory, swap, backups, or crash metadata are outside the app's control. The model stays in `~/Library/Application Support/Local Dictation/models/qwen3-asr-1.7b`; that legacy folder and the existing bundle identifier are retained so upgrades preserve setup and permissions.
+Ordinary deletion is not forensic erasure: operating-system memory, swap, backups, or crash metadata are outside the app's control. The model stays in `~/Library/Application Support/Local Dictation/models/qwen3-asr-1.7b`; that legacy folder and the existing bundle identifier are retained so upgrades preserve model data and preferences. Permission continuity also depends on a consistent code-signing identity.
 
 The receiving app controls what happens to inserted text. Dictating into a cloud chat, email service, or synced document does not make that destination private.
 
@@ -68,13 +72,15 @@ bash scripts/build.sh
 open "build/Private Dictation.app"
 ```
 
-`build.sh` **only builds by default**. `bash scripts/build.sh --install` explicitly installs into `~/Applications/Private Dictation.app`; quit an installed build before replacing it. Re-enabling Accessibility may be necessary after an ad hoc rebuild.
+`build.sh` **only builds by default**. `bash scripts/build.sh --install` explicitly installs into `~/Applications/Private Dictation.app`; quit an installed build before replacing it. For local signing, the script uses the sole valid Apple Development identity if available, or the identity explicitly set in `LOCAL_SIGNING_IDENTITY`. Otherwise it warns and signs ad hoc; every ad hoc rebuild can invalidate permissions. Distribution signing still uses `DEVELOPER_ID_IDENTITY`.
 
 ```sh
 bash scripts/package-release.sh
 ```
 
 This produces the ZIP and `SHA256SUMS.txt` in `release/`. Developer ID signing is optional through `DEVELOPER_ID_IDENTITY`. Explicit notarization uses `NOTARY_PROFILE` and `scripts/package-release.sh --notarize`. Credentials are never embedded in the app.
+
+Set `PRIVATE_DICTATION_APP` to a full installed app path to package or run `tests/bundled-smoke.py` / `tests/downloader-smoke.py` against that copy instead of `build/Private Dictation.app`. This avoids creating an extra launcher-visible copy just to verify an installed build.
 
 ## Verification and measured performance
 
@@ -85,6 +91,13 @@ The compiled privacy test must report permission-denied network attempts from bo
 .build-env/bin/python tests/bundled-smoke.py
 .build-env/bin/python tests/downloader-smoke.py
 .build-env/bin/python tests/measure-engine.py
+```
+
+The model-inventory regression check is independent of the downloaded weights:
+
+```sh
+xcrun swiftc -swift-version 5 Sources/ModelInstallation.swift tests/ModelInstallationTests.swift -o /tmp/private-dictation-model-check
+/tmp/private-dictation-model-check model-manifest.json
 ```
 
 The bundled smoke test uses synthetic speech and silence, checks temporary-file deletion on success and failure, and runs under a profile denying both network access and access to installed Python runtimes. The downloader test exercises actual pinned HTTPS resume and checksum verification without downloading another copy of the large weights. Benchmark reports contain machine/model identifiers and timings/memory, with no transcripts or audio; the methodology below explains their limits.

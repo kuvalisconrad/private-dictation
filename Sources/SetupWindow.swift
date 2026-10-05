@@ -34,6 +34,36 @@ final class SetupBackground: NSView {
     }
 }
 
+final class SetupProgress: NSView {
+    var fraction: Double = 0 {
+        didSet {
+            fraction = min(1, max(0, fraction))
+            setAccessibilityValue(NSNumber(value: fraction))
+            needsDisplay = true
+        }
+    }
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        setAccessibilityElement(true)
+        setAccessibilityRole(.progressIndicator)
+        setAccessibilityLabel("Model download progress")
+        setAccessibilityMinValue(0)
+        setAccessibilityMaxValue(1)
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    override func draw(_ dirtyRect: NSRect) {
+        let radius = bounds.height / 2
+        let track = NSBezierPath(roundedRect: bounds, xRadius: radius, yRadius: radius)
+        Palette.border.setFill(); track.fill()
+        guard fraction > 0 else { return }
+        NSGraphicsContext.saveGraphicsState()
+        track.addClip()
+        Palette.mint.setFill()
+        NSRect(x: bounds.minX, y: bounds.minY, width: bounds.width * fraction, height: bounds.height).fill()
+        NSGraphicsContext.restoreGraphicsState()
+    }
+}
+
 /// A vector mark: a sound wave inside a shield, never a recording overlay.
 final class PrivacyMark: NSView {
     override func draw(_ dirtyRect: NSRect) {
@@ -103,7 +133,7 @@ final class SetupWindow: NSWindowController {
     private let shortcutDetail = NSTextField(wrappingLabelWithString: "")
     private let privacy = NSTextField(wrappingLabelWithString: "")
     private let connection = NSTextField(labelWithString: "○  SETUP")
-    private let progress = NSProgressIndicator()
+    private let progress = SetupProgress()
     private let doneButton = SetupButton(title: "Keep running in menu bar", target: nil, action: nil)
     private let column = NSStackView()
     private var lastReady = false
@@ -203,8 +233,7 @@ final class SetupWindow: NSWindowController {
             button.bezelStyle = .rounded; button.isBordered = false
             button.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
-        progress.style = .bar; progress.minValue = 0; progress.maxValue = 1
-        progress.isIndeterminate = false; progress.translatesAutoresizingMaskIntoConstraints = false
+        progress.translatesAutoresizingMaskIntoConstraints = false
         progress.heightAnchor.constraint(equalToConstant: 4).isActive = true
         progress.isHidden = true
         let steps = NSStackView(views: [
@@ -295,14 +324,14 @@ final class SetupWindow: NSWindowController {
         modelButton.title = status.modelAction; modelButton.isEnabled = status.modelEnabled
         modelButton.invalidateIntrinsicContentSize(); modelButton.needsDisplay = true
         progress.isHidden = status.progress == nil
-        progress.doubleValue = status.progress ?? 0
+        progress.fraction = status.progress ?? 0
         microphoneDetail.stringValue = status.microphoneReady ? "Allowed. Recording starts only when you use the shortcut." :
             (status.microphoneDenied ? "Enable Private Dictation in System Settings → Privacy & Security → Microphone." : "macOS will ask once. Audio is processed on this Mac.")
         microphoneButton.title = status.microphoneReady ? "Allowed ✓" : (status.microphoneDenied ? "Open settings" : "Allow microphone")
         microphoneButton.isEnabled = !status.microphoneReady
         microphoneButton.invalidateIntrinsicContentSize(); microphoneButton.needsDisplay = true
         accessibilityDetail.stringValue = status.accessibilityReady ? "Allowed. The shortcut and automatic insertion are ready." :
-            "Enable Private Dictation in System Settings. Needed for the shortcut and insertion; the app does not read document text."
+            "Enable Private Dictation in System Settings. If already enabled, remove and re-add this copy, then reopen. Needed for the shortcut and insertion; document text is not read."
         accessibilityButton.title = status.accessibilityReady ? "Allowed ✓" : "Open settings"
         accessibilityButton.isEnabled = !status.accessibilityReady
         accessibilityButton.invalidateIntrinsicContentSize(); accessibilityButton.needsDisplay = true

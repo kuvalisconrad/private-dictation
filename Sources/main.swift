@@ -97,9 +97,10 @@ if CommandLine.arguments.contains("--insertion-self-test") || CommandLine.argume
     fflush(stdout)
     func waitForTestField() {
         let now = ProcessInfo.processInfo.systemUptime
-        let frontmost = NSWorkspace.shared.frontmostApplication
+        let target = DirectTextInsertion.focusedTarget()
+        let frontmost = target.flatMap { NSRunningApplication(processIdentifier: $0.pid) }
         let textEditFrontmost = frontmost?.bundleIdentifier == "com.apple.TextEdit"
-        let element = DirectTextInsertion.focusedElement()
+        let element = target?.element
         let textual = DirectTextInsertion.isTextField(element)
         let nonsecure = element != nil && !DirectTextInsertion.isSecure(element)
         let modifiersReleased = NSEvent.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty
@@ -243,6 +244,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
     private var hotKeyReleased = false
     private var requestID: String?
     private var pendingText: String?
+    private var pendingGeneration = UUID()
     private var targetPID: pid_t?
     private var targetElement: AXUIElement?
     private var insertionCancelled = false
@@ -404,17 +406,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
 
     @objc private func toggle() {
         guard !inserter.isInserting else { return }
-        if recorder != nil { finishRecording(); return }
+        if recorder != nil { finishRecording(confirmDestination: true); return }
         if pendingText != nil { attemptInsertion(requireOriginalFocus: false); return }
         guard requestID == nil, engineReady else { NSSound.beep(); return }
         guard permissionsReady else { setPhase(.ready, "Permissions needed — open Setup & permissions"); NSSound.beep(); return }
         guard networkBlocked else { setPhase(.failed, "Offline protection unavailable. Quit and reopen Private Dictation."); return }
-        // Do not dictate while our setup window owns focus.
-        guard NSWorkspace.shared.frontmostApplication?.processIdentifier != getpid() else {
+        guard let target = DirectTextInsertion.focusedTarget() else {
+            setPhase(.ready, "Click a text field first, then use the shortcut."); NSSound.beep(); return
+        }
+        // Use the same Accessibility focus source for the field and its app.
+        guard target.pid != getpid() else {
             setPhase(.ready, "Click a text field in another app, then use the shortcut"); NSSound.beep(); return
         }
-        targetPID = NSWorkspace.shared.frontmostApplication?.processIdentifier
-        targetElement = DirectTextInsertion.focusedElement()
+        targetPID = target.pid
+        targetElement = target.element
         guard !DirectTextInsertion.isSecure(targetElement) else {
             setPhase(.ready, "Dictation is disabled in secure fields."); NSSound.beep(); return
         }
@@ -437,10 +442,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
         }
     }
 
-    private func finishRecording() {
+    private func finishRecording(confirmDestination: Bool = false) {
         recordingTimer?.invalidate(); recordingTimer = nil
         recorder?.stop(); recorder = nil
         guard let path = recordingURL else { idle(); return }
+        if confirmDestination {
+            // A manual stop confirms the current cursor. Apps can recreate
+            // their field while recording. Automatic timeouts retain the
+            // original destination, so switching apps cannot redirect them.
+            let destination = DirectTextInsertion.focusedTarget()
+            targetPID = destination?.pid
+            targetElement = destination?.element
+        }
         let id = UUID().uuidString; requestID = id
         setPhase(.transcribing, "Transcribing on this Mac…")
         do {
@@ -493,6 +506,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
             pendingWordCount = text.split(whereSeparator: { $0.isWhitespace }).count
             pendingAudioSeconds = (message["audio_seconds"] as? NSNumber)?.doubleValue ?? 0
             pendingProcessingSeconds = (message["seconds"] as? NSNumber)?.doubleValue ?? 0
+            pendingGeneration = UUID()
             pendingText = text; attemptInsertion(requireOriginalFocus: true)
         case "error":
             if let id = message["id"] as? String, id != requestID { return }
@@ -554,17 +568,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
         }
     }
 
-    private func attemptInsertion(requireOriginalFocus: Bool) {
+    private func attemptInsertion(requireOriginalFocus: Bool, releaseChecks: Int = 12) {
         guard let text = pendingText else { return }
         guard AXIsProcessTrusted() else { setPhase(.pending, "Text ready · enable Accessibility, then use the shortcut"); return }
-        let focus = DirectTextInsertion.focusedElement()
-        let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier
-        let sameApp = pid == targetPID
-        let sameField = targetElement.map { old in focus.map { CFEqual(old, $0) } ?? false } ?? false
         let held = !NSEvent.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty
-        guard !held, let focus = focus, let pid = pid, pid != getpid(),
-              !requireOriginalFocus || (sameApp && sameField) else {
-            setPhase(.pending, "Text ready · click its destination and use the shortcut"); return
+        if held {
+            setPhase(.pending, "Text ready · release Command and Option to insert")
+            if releaseChecks > 0 {
+                let generation = pendingGeneration
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.025) { [weak self] in
+                    guard let self = self, self.pendingGeneration == generation, self.pendingText != nil, !self.inserter.isInserting else { return }
+                    self.attemptInsertion(requireOriginalFocus: requireOriginalFocus, releaseChecks: releaseChecks - 1)
+                }
+            }
+            return
+        }
+        guard let target = DirectTextInsertion.focusedTarget() else {
+            setPhase(.pending, "Text ready · no text field is focused. Click one and use the shortcut."); return
+        }
+        let focus = target.element, pid = target.pid
+        guard pid != getpid() else {
+            setPhase(.pending, "Text ready · click a text field outside Private Dictation and use the shortcut."); return
+        }
+        if requireOriginalFocus {
+            guard pid == targetPID else {
+                setPhase(.pending, "Text ready · the active app changed. Click the destination and use the shortcut."); return
+            }
+            guard targetElement.map({ CFEqual($0, focus) }) == true else {
+                setPhase(.pending, "Text ready · the focused field changed. Click the destination and use the shortcut."); return
+            }
         }
         guard !DirectTextInsertion.isSecure(focus) else {
             setPhase(.pending, "Secure field blocked. Click a normal text field, or discard."); return
@@ -592,6 +624,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
     }
 
     @objc private func cancel() {
+        pendingGeneration = UUID()
         if inserter.isInserting {
             insertionCancelled = true; inserter.cancel(); pendingText = nil; clearPendingMetrics(); idle(); return
         }

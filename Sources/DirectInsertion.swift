@@ -2,6 +2,11 @@ import AppKit
 import ApplicationServices
 import Carbon
 
+struct FocusedTextTarget {
+    let element: AXUIElement
+    let pid: pid_t
+}
+
 /// Inserts through Accessibility or Unicode key events. It never accesses the
 /// pasteboard, reads document text, or types into a secure/noneditable field.
 final class DirectTextInsertion {
@@ -29,9 +34,20 @@ final class DirectTextInsertion {
               let value = value, CFGetTypeID(value) == AXUIElementGetTypeID() else { return nil }
         return (value as! AXUIElement)
     }
+
+    static func focusedTarget() -> FocusedTextTarget? {
+        guard let element = focusedElement() else { return nil }
+        var pid: pid_t = 0
+        // The element supplies its own owning app. Mixing NSWorkspace's app
+        // snapshot with an Accessibility field can produce an inconsistent pair.
+        guard AXUIElementGetPid(element, &pid) == .success, pid > 0 else { return nil }
+        return FocusedTextTarget(element: element, pid: pid)
+    }
+
     private func stillFocused(_ element: AXUIElement, pid: pid_t) -> Bool {
-        NSWorkspace.shared.frontmostApplication?.processIdentifier == pid &&
-            Self.focusedElement().map { CFEqual($0, element) } == true &&
+        let target = Self.focusedTarget()
+        return target?.pid == pid &&
+            target.map { CFEqual($0.element, element) } == true &&
             !Self.isSecure(element) &&
             NSEvent.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty
     }

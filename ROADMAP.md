@@ -24,7 +24,7 @@ Updated **5 October 2026** (Asia/Bangkok). This tracks the Mac app, website and 
 - [x] Temporary recording cleanup, cancellation, two-minute recording limit, timeouts and engine recovery.
 - [x] Native unit checks, packaged-engine smoke/cleanup/offline checks, UI rendering checks and a portable review ZIP.
 
-**Installed locally:** the development Mac now has one copy, `/Applications/Private Dictation.app`, with a pinned Dock icon. Old prototypes were moved to Trash. Build 101 fixed model recognition: it recognizes the actual pinned model inventory and loads the existing model without a repeat download. Download/resume checksum verification, offline inference and temporary-audio cleanup passed on the installed copy. Build 102 adds a reveal-installed-app button and headless setup diagnostics; build products use a `.noindex` folder. Local signing now uses the owner's existing Apple Development identity; Microphone is authorized. The stale Accessibility entry was removed; re-adding the installed app and final live insertion checks are pending. Further testing is in the background at the owner's request. Developer ID distribution signing/notarization remains launch work.
+**Installed locally:** the development Mac now has one copy, `/Applications/Private Dictation.app`, with a pinned Dock icon. Old prototypes were moved to Trash. Build 101 fixed model recognition: it recognizes the actual pinned model inventory and loads the existing model without a repeat download. Download/resume checksum verification, offline inference and temporary-audio cleanup passed on the installed copy. Build 102 adds a reveal-installed-app button and headless setup diagnostics; build products use a `.noindex` folder. Local signing now uses the owner's existing Apple Development identity; Microphone is authorized. The owner's live test now reaches recording and a transcribed result, confirming the desktop permission checks pass; automatic insertion is still blocked by its focus gate. Build 103 is staged for a background update, with coherent Accessibility field/app lookup, a fresh destination on manual stop, bounded modifier-release retries and specific rejection messages. It is not yet installed or verified through live dictation. Further testing is in the background at the owner's request. Developer ID distribution signing/notarization remains launch work.
 
 ### Website and content — implemented and published
 
@@ -48,11 +48,17 @@ Updated **5 October 2026** (Asia/Bangkok). This tracks the Mac app, website and 
 ## Next: finish the app you will actually use
 
 1. [x] Install the polished build safely, preserving the existing model/settings, removing duplicate launcher apps and pinning the correct Dock icon.
-2. [ ] Finish re-adding the installed app in Accessibility and verify its normal desktop launch recognizes the grant. Microphone was already recognized. Headless permission booleans apply to the invoking process and do not complete this desktop check.
-3. [ ] Verify live insertion in a genuinely foreground TextEdit document for both Accessibility and Unicode paths. Earlier automation could not make TextEdit foreground; the safety guard correctly refused insertion.
+2. [x] Verify normal desktop launch recognizes Microphone and Accessibility: the owner's live test starts recording and reaches a transcribed result. This does not establish successful insertion; headless permission booleans alone would not establish the desktop grants.
+3. [ ] Verify live insertion in a genuinely foreground TextEdit document for both Accessibility and Unicode paths. Earlier tests never reached actual insertion because their TextEdit focus prerequisite failed. This is an incomplete integration test, not evidence that insertion works.
 4. [ ] Test normal dictation in Codex/browser fields, TextEdit and other common apps; cover focus changes, unsupported fields, cancellation and partial-result retry/discard.
 5. [ ] Exercise custom shortcuts and dictionary corrections through real recording sessions. Confirm recording has no floating panel and insertion never touches the clipboard.
 6. [ ] Run a clean first-install/model-download/permission flow on another Mac, including recovery from interrupted setup.
+
+### Current regression investigation
+
+The archived v0.1 prototype and first release were compared against the original conversation and source. Both use the same Qwen3-ASR-1.7B model revision and MLX/ASR versions. The commercial polish replaced temporary clipboard paste/restore with Accessibility and Unicode insertion to honor the explicit no-clipboard requirement. It also added stricter focused-field availability, editability and identity checks. The original prototype had passed the owner's live dictation test; the replacement had only passed engine and safety checks before installation.
+
+The owner's “Text ready · click its destination and use the shortcut” screenshot establishes that recording and transcription succeeded and the pre-insertion focus gate refused the result. The installed build groups held modifiers, missing focus/app information and changed destination into that same message, so the exact failed subcondition is not yet established. No clipboard fallback or privacy restriction rollback is part of the repair. Live insertion verification is required before calling the regression fixed.
 
 ## Then: establish trustworthy launch requirements and accuracy
 

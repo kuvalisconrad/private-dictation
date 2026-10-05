@@ -35,7 +35,7 @@ MACOSX_DEPLOYMENT_TARGET=14.0 xcrun clang -target arm64-apple-macos14.0 \
 MACOSX_DEPLOYMENT_TARGET=14.0 xcrun swiftc -target arm64-apple-macos14.0 \
   -swift-version 5 -O -import-objc-header "$ROOT/Sources/Privacy.h" \
   "$ROOT"/Sources/*.swift "$BUILD/Privacy.o" \
-  -framework AppKit -framework AVFoundation -framework ApplicationServices -framework Carbon \
+  -framework AppKit -framework AVFoundation -framework ApplicationServices -framework Carbon -framework CoreAudio \
   -o "$APP/Contents/MacOS/LocalDictation"
 if [ -d "$APP/Contents/Resources/Engine" ]; then
   rm -rf "$APP/Contents/Resources/Engine"

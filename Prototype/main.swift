@@ -96,6 +96,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
     private var toggleItem: NSMenuItem!
     private var cancelItem: NSMenuItem!
     private let backend = Backend()
+    private let outputMute = RecordingOutputMute()
     private var recorder: AVAudioRecorder?
     private var recordingURL: URL?
     private var recordingTimer: Timer?
@@ -196,6 +197,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
         }
         targetPID = NSWorkspace.shared.frontmostApplication?.processIdentifier
         targetElement = focusedElement()
+        guard outputMute.begin() else {
+            updateStatus("Could not mute system audio. Check your output device."); return
+        }
         let path = recordings.appendingPathComponent(UUID().uuidString + ".wav")
         do {
             let audio = try AVAudioRecorder(url: path, settings: [
@@ -205,12 +209,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
             ])
             audio.delegate = self
             guard audio.prepareToRecord(), audio.record() else { throw NSError(domain: "LocalDictation", code: 3) }
+            outputMute.reassert()
             recordingURL = path; recorder = audio
             updateStatus("Listening…")
             recordingTimer = Timer.scheduledTimer(withTimeInterval: 120, repeats: false) { [weak self] _ in
                 self?.finishRecording()
             }
         } catch {
+            outputMute.end()
             try? files.removeItem(at: path)
             updateStatus("Could not start the microphone. Check permissions.")
         }
@@ -218,7 +224,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
 
     private func finishRecording() {
         recordingTimer?.invalidate(); recordingTimer = nil
-        recorder?.stop(); recorder = nil
+        recorder?.stop(); recorder = nil; outputMute.end()
         guard let path = recordingURL else { return }
         requestID = UUID().uuidString
         requestCancelled = false
@@ -229,6 +235,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
 
     func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
         cancel(); updateStatus("Microphone recording failed. Try again.")
+    }
+
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        guard !flag, self.recorder === recorder else { return }
+        cancel(); updateStatus("Microphone recording interrupted. Try again.")
     }
 
     private func handle(_ message: [String: Any]) {
@@ -244,6 +255,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
             pendingText = text
             attemptPaste(requireOriginalFocus: true)
         case "error", "exit":
+            recordingTimer?.invalidate(); recordingTimer = nil
+            recorder?.stop(); recorder = nil; outputMute.end()
             if message["event"] as? String == "exit" { ready = false }
             requestID = nil; clearRecording()
             updateStatus(message["message"] as? String ?? "Engine error")
@@ -310,7 +323,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
 
     @objc private func cancel() {
         recordingTimer?.invalidate(); recordingTimer = nil
-        recorder?.stop(); recorder = nil
+        recorder?.stop(); recorder = nil; outputMute.end()
         pendingText = nil
         // A running inference finishes in the background; ignore its result.
         if requestID != nil {
@@ -372,7 +385,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
     @objc private func quit() { NSApp.terminate(nil) }
     func applicationWillTerminate(_ notification: Notification) {
         recordingTimer?.invalidate(); watchdog?.invalidate()
-        recorder?.stop(); backend.stop(); restoreClipboard?(); cleanRecordings()
+        recorder?.stop(); outputMute.stopImmediately(); backend.stop(); restoreClipboard?(); cleanRecordings()
         if let monitor = globalMonitor { NSEvent.removeMonitor(monitor) }
         if let monitor = localMonitor { NSEvent.removeMonitor(monitor) }
     }

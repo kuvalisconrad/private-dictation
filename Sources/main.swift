@@ -229,6 +229,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
     private lazy var settings = SettingsWindow(store: preferences)
     private let hotKey = ShortcutHotKey()
     private let inserter = DirectTextInsertion()
+    private let outputMute = RecordingOutputMute()
     private var phase: Phase = .loading
     private var status = "Loading speech model…"
     private var engineReady = false
@@ -426,6 +427,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
         guard DirectTextInsertion.isTextField(targetElement) else {
             setPhase(.ready, "Click a text field first, then use the shortcut."); NSSound.beep(); return
         }
+        guard outputMute.begin() else {
+            setPhase(.ready, "Could not mute system audio. Check your output device."); return
+        }
         let path = recordings.appendingPathComponent(UUID().uuidString + ".wav")
         do {
             let audio = try AVAudioRecorder(url: path, settings: [AVFormatIDKey: kAudioFormatLinearPCM,
@@ -433,10 +437,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
                 AVLinearPCMIsFloatKey: false, AVLinearPCMIsBigEndianKey: false])
             audio.delegate = self
             guard audio.prepareToRecord(), audio.record() else { throw NSError(domain: "FreeDictation", code: 3) }
+            outputMute.reassert()
             recordingURL = path; recorder = audio
             setPhase(.recording, "Listening · use the shortcut to stop")
             recordingTimer = Timer.scheduledTimer(withTimeInterval: 120, repeats: false) { [weak self] _ in self?.finishRecording() }
         } catch {
+            outputMute.end()
             try? files.removeItem(at: path)
             setPhase(.ready, "Microphone unavailable. Check your input device and permissions.")
         }
@@ -444,7 +450,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
 
     private func finishRecording(confirmDestination: Bool = false) {
         recordingTimer?.invalidate(); recordingTimer = nil
-        recorder?.stop(); recorder = nil
+        recorder?.stop(); recorder = nil; outputMute.end()
         guard let path = recordingURL else { idle(); return }
         if confirmDestination {
             // A manual stop confirms the current cursor. Apps can recreate
@@ -510,11 +516,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
             pendingText = text; attemptInsertion(requireOriginalFocus: true)
         case "error":
             if let id = message["id"] as? String, id != requestID { return }
+            if recorder != nil {
+                recordingTimer?.invalidate(); recordingTimer = nil
+                recorder?.stop(); recorder = nil; outputMute.end()
+            }
             taskTimer?.invalidate(); taskTimer = nil; requestID = nil; clearRecording()
             if !engine.isRunning { engineReady = false }
             if !engineReady { engine.stop() }
             setPhase(engineReady ? .ready : .failed, message["message"] as? String ?? "Transcription failed. Try again.")
         case "exit":
+            if recorder != nil {
+                recordingTimer?.invalidate(); recordingTimer = nil
+                recorder?.stop(); recorder = nil; outputMute.end()
+            }
             taskTimer?.invalidate(); taskTimer = nil
             engineReady = false; requestID = nil; clearRecording()
             if pendingText != nil { setPhase(.pending, "Text ready · use the shortcut to insert") }
@@ -633,7 +647,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
             setPhase(.needsModel, "Download paused. Resume when you’re ready."); return
         }
         recordingTimer?.invalidate(); recordingTimer = nil
-        recorder?.stop(); recorder = nil; pendingText = nil; clearPendingMetrics(); targetElement = nil; targetPID = nil
+        recorder?.stop(); recorder = nil; outputMute.end(); pendingText = nil; clearPendingMetrics(); targetElement = nil; targetPID = nil
         if requestID != nil {
             taskTimer?.invalidate(); taskTimer = nil; requestID = nil; engineReady = false
             engine.stop(); clearRecording(); restartEngine(); return
@@ -733,7 +747,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegat
     @objc private func quit() { NSApp.terminate(nil) }
     func applicationWillTerminate(_ notification: Notification) {
         recordingTimer?.invalidate(); taskTimer?.invalidate(); watchdog?.invalidate(); downloadStallTimer?.invalidate()
-        recorder?.stop(); engine.stop(); downloader.stop(); insertionCancelled = true; inserter.cancel(); hotKey.unregister(); pendingText = nil; cleanRecordings()
+        recorder?.stop(); outputMute.stopImmediately(); engine.stop(); downloader.stop(); insertionCancelled = true; inserter.cancel(); hotKey.unregister(); pendingText = nil; cleanRecordings()
         if let monitor = globalMonitor { NSEvent.removeMonitor(monitor) }
         if let monitor = localMonitor { NSEvent.removeMonitor(monitor) }
     }

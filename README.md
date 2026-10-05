@@ -4,7 +4,7 @@ A native Mac app for English dictation. Qwen3-ASR 1.7B recognizes speech locally
 
 The source is open under MIT at [kuvalisconrad/private-dictation](https://github.com/kuvalisconrad/private-dictation). The packaged app is planned as a **US$5 one-time purchase**; checkout is not live yet. You can build the source yourself. Third-party model and runtime licenses remain their own; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-See [ROADMAP.md](ROADMAP.md) for implemented features, pending validation and launch work. The development Mac has temporarily reverted to the original v0.1 prototype after the polished build blocked live insertion. That prototype briefly uses and restores the clipboard. This repository contains the clipboard-free v1 review build; its focus repair is staged, and successful live insertion and commercial release setup remain pending.
+See [ROADMAP.md](ROADMAP.md) for implemented features, pending validation and launch work. The development Mac uses v0.1 build 2 of the recovered prototype after the polished build blocked live insertion. This personal update adds recording-time output muting while preserving its original paste code. The prototype briefly uses and restores the clipboard. This repository contains the clipboard-free v1 review build; its focus repair is staged, and successful live insertion and commercial release setup remain pending.
 
 ## Requirements and current release status
 
@@ -35,6 +35,8 @@ Downloaded releases include their own Python runtime, MLX, and Metal resources. 
 If Accessibility appears enabled in System Settings but setup still reports it missing, an older build's permission may be stale. Remove **Private Dictation** from the Accessibility list, add the installed copy again, enable it, then quit and reopen the app. Changing from an ad hoc signature to Apple Development also needs a fresh Microphone grant once. A consistent Apple signing identity allows subsequent local rebuilds to retain permission identity; the app always checks macOS's actual permission state.
 
 Build 101 fixes model readiness: this pinned model uses `vocab.json` and `merges.txt`, not `tokenizer.json`. Setup now checks the pinned inventory and exact file sizes. If all files are already present, it loads them without another download. During download/resume, progress includes checksum verification of existing files, which can temporarily hold the displayed percentage steady.
+
+Dictation temporarily mutes the Mac’s default playback and system-sound outputs before opening the microphone. It restores their prior mute state about 250 ms after recording stops, including cancellation, timeout and recording failure; normal quit restores immediately. Already-muted outputs stay muted. Output-route and Bluetooth-profile changes are rechecked during capture. Devices without a mute control use a supported output-volume control as a fallback and restore that level afterward. This does not stop the music timeline, and apps routed explicitly to separate hardware are outside the default-output controls.
 
 The default shortcut fires when the modifiers are released. Either modifier order works. Adding another ordinary key cancels the modifier-only shortcut, so normal shortcuts remain usable. The microphone in the menu bar and the macOS microphone indicator show recording. Recordings stop automatically after two minutes. **Escape** discards a recording or pending result.
 
@@ -83,6 +85,10 @@ bash scripts/package-release.sh
 This produces the ZIP and `SHA256SUMS.txt` in `release/`. Developer ID signing is optional through `DEVELOPER_ID_IDENTITY`. Explicit notarization uses `NOTARY_PROFILE` and `scripts/package-release.sh --notarize`. Credentials are never embedded in the app.
 
 Set `PRIVATE_DICTATION_APP` to a full installed app path to package or run `tests/bundled-smoke.py` / `tests/downloader-smoke.py` against that copy instead of `build/Products.noindex/Private Dictation.app`. This avoids creating an extra launcher-visible copy just to verify an installed build.
+
+## Personal prototype build
+
+`Prototype/` preserves the recovered working prototype, separately from the portable v1 source. `bash scripts/build-prototype.sh` compiles it into `build/Prototype.noindex/Private Dictation.app` without installing or opening it. It requires the original local Python runtime at `~/Library/Application Support/Local Dictation/runtime` and the already-installed model; it is not the portable customer download. It shares the output-muting helper with v1 and retains temporary clipboard paste/restore. Do not confuse this personal recovery build with the clipboard-free release.
 
 ## Verification and measured performance
 
